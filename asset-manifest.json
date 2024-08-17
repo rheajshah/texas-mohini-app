@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/texas-mohini-app/static/css/main.fac7244f.css",
+    "main.js": "/texas-mohini-app/static/js/main.770c8a08.js",
+    "index.html": "/texas-mohini-app/index.html",
+    "main.fac7244f.css.map": "/texas-mohini-app/static/css/main.fac7244f.css.map",
+    "main.770c8a08.js.map": "/texas-mohini-app/static/js/main.770c8a08.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fac7244f.css",
+    "static/js/main.770c8a08.js"
+  ]
+}
