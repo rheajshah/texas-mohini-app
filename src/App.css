@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #EEDDBC;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.centered-content {
+  width: 100%;
+  max-width: 500px;
+  padding: 50px;
+  background-color: #FFF7CA;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .centered-content {
+    width: 100%;
+    max-width: none;
+    padding: 50px;
+  }
+
+  .submit-button {
+    font-size: 16px;
+  }
+}
+
+
