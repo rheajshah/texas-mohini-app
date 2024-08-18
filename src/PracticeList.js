@@ -3,6 +3,7 @@ import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, u
 import { auth } from './firebase'; // Update the path as necessary
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { formatInTimeZone } from 'date-fns-tz'; // Updated import
 import './PracticeList.css'; // Add your CSS file for styling
 
 const db = getFirestore();
@@ -85,7 +86,6 @@ const PracticeList = () => {
       console.error("Error fetching practices and conflicts: ", error);
     }
   };
-  
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -120,9 +120,13 @@ const PracticeList = () => {
   }, []);
 
   const formatDate = (dateString) => {
-    console.log(dateString);
-    const [year, month, day] = dateString.split('-');
-    return `${month}/${day}/${year}`;
+    const timeZone = 'America/Chicago'; // Change this to the user's timezone if needed
+
+    // Convert the date string to a Date object
+    const date = new Date(dateString);
+
+    // Format the date in the desired timezone
+    return formatInTimeZone(date, timeZone, 'MM/dd/yyyy');
   };
 
   const handleAddConflict = async () => {
@@ -178,8 +182,6 @@ const PracticeList = () => {
       console.error("Error updating practice: ", error);
     }
   };
-  
-  
 
   const handleAddPractice = async () => {
     try {
@@ -204,8 +206,6 @@ const PracticeList = () => {
     }
   };
   
-  
-
   return (
     <div>
       <h2>Practice Schedule</h2> {/* Add the title here */}
@@ -335,4 +335,3 @@ const PracticeList = () => {
 };
 
 export default PracticeList;
-
