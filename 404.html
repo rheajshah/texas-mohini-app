@@ -8,13 +8,13 @@
       // Define the base path of your app
       var basePath = '/texas-mohini-app';
 
+      // Get the current path
+      var currentPath = window.location.pathname;
+
       // Check if the current path starts with the base path
-      if (window.location.pathname.startsWith(basePath)) {
-        // If it does, the page should exist, so just reload the page to let React handle it
-        window.location.replace(window.location.href);
-      } else {
-        // Otherwise, redirect to the base path, appending the current path and query parameters
-        window.location.replace(basePath + window.location.pathname + window.location.search + window.location.hash);
+      if (!currentPath.startsWith(basePath)) {
+        // Redirect to the correct path if it's not already there
+        window.location.replace(basePath + currentPath + window.location.search + window.location.hash);
       }
     })();
   </script>
