@@ -3,7 +3,7 @@ import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, u
 import { auth } from './firebase'; // Update the path as necessary
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format, parseISO} from 'date-fns'; // Updated import
+import { format,parseISO } from 'date-fns'; // Updated import
 import './PracticeList.css'; // Add your CSS file for styling
 
 const db = getFirestore();
@@ -224,100 +224,142 @@ const PracticeList = () => {
       <div className="practice-list">
         {userRole === 'Captain' && (
           <>
-            <button onClick={() => setAddPracticeMode(true)} className="new-prac-button">Add New Practice</button>
+            <button onClick={() => setAddPracticeMode(true)} className="new-prac-button">
+              Add New Practice
+            </button>
           </>
         )}
-
+  
         {practices.map((item) => (
           <div key={item.id} className="practice-item">
             <p>{formatDate(item.date)}</p>
-            <p><b>{item.day}</b> {item.time} @ {item.location}</p>
-            
+            <p>
+              <b>{item.day}</b> {item.time} @ {item.location}
+            </p>
+  
             {conflicts[item.id] && conflicts[item.id].length > 0 && (
               <div className="conflicts">
                 <h4>Conflicts:</h4>
-                {conflicts[item.id].map(conflict => (
-                  <div key={conflict.id}>
-                    <p>{users[conflict.dancerId]} - {conflict.conflictTime}: {conflict.reason}</p>
-                  </div>
+                {conflicts[item.id].map((conflict, index) => (
+                  <p key={index}>
+                    {users[conflict.dancerId]} - {conflict.conflictTime} - {conflict.reason}
+                  </p>
                 ))}
               </div>
             )}
+  
+            <div className="button-group">
+              {userRole === 'Captain' && (
+                <button
+                  onClick={() => {
+                    setSelectedPractice(item);
+                    setEditMode(true);
+                    setNewPracticeTime(item.time);
+                    setNewPracticeLocation(item.location);
+                  }}
+                >
+                  Edit Practice
+                </button>
+              )}
+  
+              <button
+                onClick={() => {
+                  setSelectedPractice(item);
+                  setModalVisible(true);
+                }}
+              >
+                Add Conflict
+              </button>
+            </div>
           </div>
         ))}
       </div>
-      
-      {modalVisible && (
+  
+      {selectedPractice && modalVisible && (
         <div className="modal">
-          <h3>{editMode ? 'Edit Practice' : 'Add Conflict'}</h3>
-          {editMode ? (
-            <>
-              <DatePicker
-                selected={newPracticeDate}
-                onChange={(date) => setNewPracticeDate(date)}
-                dateFormat="yyyy-MM-dd"
-              />
-              <input
-                type="text"
-                value={newPracticeTime}
-                onChange={(e) => setNewPracticeTime(e.target.value)}
-                placeholder="Practice Time"
-              />
-              <input
-                type="text"
-                value={newPracticeLocation}
-                onChange={(e) => setNewPracticeLocation(e.target.value)}
-                placeholder="Practice Location"
-              />
-              <button onClick={handleEditPractice}>Save</button>
-              <button onClick={() => setEditMode(false)}>Cancel</button>
-            </>
-          ) : (
-            <>
-              <input
-                type="text"
-                value={conflictTime}
-                onChange={(e) => setConflictTime(e.target.value)}
-                placeholder="Conflict Time"
-              />
-              <textarea
-                value={conflictReason}
-                onChange={(e) => setConflictReason(e.target.value)}
-                placeholder="Reason for Conflict"
-              />
-              <button onClick={handleAddConflict}>Add Conflict</button>
-              <button onClick={() => setModalVisible(false)}>Cancel</button>
-            </>
-          )}
+          <div className="modal-content">
+            <input
+              type="text"
+              placeholder="Conflict Time (e.g., 8-9pm)"
+              value={conflictTime}
+              onChange={(e) => setConflictTime(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Reason (e.g., midterm)"
+              value={conflictReason}
+              onChange={(e) => setConflictReason(e.target.value)}
+            />
+            <button onClick={handleAddConflict}>Submit</button>
+            <button onClick={() => setModalVisible(false)}>Cancel</button>
+          </div>
         </div>
       )}
-
+  
       {addPracticeMode && (
         <div className="modal">
-          <h3>Add New Practice</h3>
-          <DatePicker
-            selected={newPracticeDate}
-            onChange={(date) => setNewPracticeDate(date)}
-            dateFormat="yyyy-MM-dd"
-          />
-          <input
-            type="text"
-            value={newPracticeTime}
-            onChange={(e) => setNewPracticeTime(e.target.value)}
-            placeholder="Practice Time"
-          />
-          <input
-            type="text"
-            value={newPracticeLocation}
-            onChange={(e) => setNewPracticeLocation(e.target.value)}
-            placeholder="Practice Location"
-          />
-          <button onClick={handleAddPractice}>Add Practice</button>
-          <button onClick={() => setAddPracticeMode(false)}>Cancel</button>
+          <div className="modal-content">
+            <h3>Add New Practice</h3>
+            <DatePicker
+              selected={newPracticeDate}
+              onChange={(date) => setNewPracticeDate(date)}
+              dateFormat="yyyy/MM/dd"
+              placeholderText="Select a date"
+            />
+            <input
+              type="text"
+              placeholder="New Practice Time"
+              value={newPracticeTime}
+              onChange={(e) => setNewPracticeTime(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="New Practice Location"
+              value={newPracticeLocation}
+              onChange={(e) => setNewPracticeLocation(e.target.value)}
+            />
+            <button onClick={handleAddPractice}>Submit</button>
+            <button onClick={() => setAddPracticeMode(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+  
+      {editMode && selectedPractice && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Edit Practice</h3>
+            <DatePicker
+              selected={newPracticeDate}
+              onChange={(date) => setNewPracticeDate(date)}
+            />
+            <input
+              type="text"
+              placeholder="Edit Practice Time"
+              value={newPracticeTime}
+              onChange={(e) => setNewPracticeTime(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Edit Practice Location"
+              value={newPracticeLocation}
+              onChange={(e) => setNewPracticeLocation(e.target.value)}
+            />
+            <button onClick={handleEditPractice}>Submit</button>
+            <button
+              onClick={() => {
+                setEditMode(false);
+                setSelectedPractice(null);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
     </div>
-  );
+  );  
 };
+
+
 
 export default PracticeList;
