@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/texas-mohini-app/static/css/main.94786d41.css",
-    "main.js": "/texas-mohini-app/static/js/main.593244da.js",
+    "main.js": "/texas-mohini-app/static/js/main.cff74b2e.js",
     "index.html": "/texas-mohini-app/index.html",
     "main.94786d41.css.map": "/texas-mohini-app/static/css/main.94786d41.css.map",
-    "main.593244da.js.map": "/texas-mohini-app/static/js/main.593244da.js.map"
+    "main.cff74b2e.js.map": "/texas-mohini-app/static/js/main.cff74b2e.js.map"
   },
   "entrypoints": [
     "static/css/main.94786d41.css",
-    "static/js/main.593244da.js"
+    "static/js/main.cff74b2e.js"
   ]
 }
