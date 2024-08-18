@@ -48,6 +48,9 @@ const PracticeList = () => {
       const practicesSnapshot = await getDocs(practicesQuery);
       const practicesData = practicesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   
+      // Sort the practices by date
+      practicesData.sort((a, b) => new Date(a.date) - new Date(b.date));
+  
       if (practicesData.length === 0) {
         console.log("No practices found within the date range");
         setPractices([]);
@@ -69,23 +72,23 @@ const PracticeList = () => {
   
       // Fetch user display names
       const userIds = Array.from(new Set(conflictsSnapshot.docs.map(doc => doc.data().dancerId)));
-    
+  
       if (userIds.length > 0) {
         const usersRef = collection(db, 'users');
         const usersQuery = query(usersRef, where('__name__', 'in', userIds));
         const usersSnapshot = await getDocs(usersQuery);
-
+  
         // Accumulate user data
         const usersData = usersSnapshot.docs.reduce((acc, doc) => {
           const data = doc.data();
           acc[doc.id] = data.displayName; // Use document ID as the key
           return acc;
         }, {});
-
+  
         // Update state with users data
         setUsers(usersData);
       }
-
+  
       // Update state with practices and conflicts data
       setPractices(practicesData);
       setConflicts(conflictsData);
@@ -93,6 +96,7 @@ const PracticeList = () => {
       console.error("Error fetching practices and conflicts: ", error);
     }
   };
+  
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -203,7 +207,12 @@ const PracticeList = () => {
       const practicesRef = collection(db, 'practices');
       const docRef = await addDoc(practicesRef, newPractice);
   
-      setPractices(prev => [...prev, { id: docRef.id, ...newPractice }]);
+      // Add the new practice to the state and sort the practices by date
+      setPractices(prev => {
+        const updatedPractices = [...prev, { id: docRef.id, ...newPractice }];
+        return updatedPractices.sort((a, b) => new Date(a.date) - new Date(b.date));
+      });
+  
       setAddPracticeMode(false);
       setNewPracticeDate(new Date()); // Reset date picker
       setNewPracticeTime('');
@@ -212,6 +221,7 @@ const PracticeList = () => {
       console.error("Error adding practice: ", error);
     }
   };
+  
   
   return (
     <div>
