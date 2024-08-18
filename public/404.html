@@ -4,9 +4,14 @@
   <meta charset="utf-8">
   <title>Page Not Found</title>
   <script type="text/javascript">
-    // Redirect to the correct route in the app
-    var redirectTo = window.location.pathname.replace('/texas-mohini-app', '');
-    window.location.replace('/texas-mohini-app' + redirectTo);
+    // Check if the current path is part of the React app's routes
+    var validRoutes = ['/practices', '/signup', '/']; // Add other valid routes here
+    var currentPath = window.location.pathname.replace('/texas-mohini-app', '');
+
+    if (!validRoutes.includes(currentPath)) {
+      // Redirect to the correct base path with the current path
+      window.location.replace('/texas-mohini-app' + currentPath);
+    }
   </script>
 </head>
 <body>
