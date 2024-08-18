@@ -67,19 +67,26 @@ const PracticeList = () => {
         return acc;
       }, {});
   
+      // Fetch user display names
       const userIds = Array.from(new Set(conflictsSnapshot.docs.map(doc => doc.data().dancerId)));
+    
       if (userIds.length > 0) {
         const usersRef = collection(db, 'users');
         const usersQuery = query(usersRef, where('__name__', 'in', userIds));
         const usersSnapshot = await getDocs(usersQuery);
+
+        // Accumulate user data
         const usersData = usersSnapshot.docs.reduce((acc, doc) => {
           const data = doc.data();
-          acc[doc.id] = data.displayName;
+          acc[doc.id] = data.displayName; // Use document ID as the key
           return acc;
         }, {});
+
+        // Update state with users data
         setUsers(usersData);
       }
-  
+
+      // Update state with practices and conflicts data
       setPractices(practicesData);
       setConflicts(conflictsData);
     } catch (error) {
