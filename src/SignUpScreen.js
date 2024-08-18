@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { auth, db } from './firebase';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { Link } from 'react-router-dom';
 
-import './App.css'
-import './SignUpScreen.css'
+import './App.css';
+import './SignUpScreen.css';
 
 const SignUpScreen = () => {
   const [email, setEmail] = useState('');
@@ -68,7 +69,7 @@ const SignUpScreen = () => {
           </div>
           <button type="submit" className="submit-button">Sign Up</button>
         </form>
-        <p className="login-link">Already have an account? <a href="/">Login</a></p>
+        <p className="login-link">Already have an account? <Link to="/">Login</Link></p>
       </div>
     </div>
   );

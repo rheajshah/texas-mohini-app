@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from './firebase';
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { Link } from 'react-router-dom';
 
-import './App.css'
-import './LoginScreen.css'
+import './App.css';
+import './LoginScreen.css';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -39,7 +40,7 @@ const LoginScreen = () => {
           </div>
           <button type="submit" className="submit-button">Login</button>
         </form>
-        <p className="signup-link">Don't have an account? <a href="/signup">Sign Up</a></p>
+        <p className="signup-link">Don't have an account? <Link to="/signup">Sign Up</Link></p>
       </div>
     </div>
   );
