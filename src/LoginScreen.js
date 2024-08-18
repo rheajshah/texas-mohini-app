@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from './firebase';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 
 import './App.css';
@@ -9,17 +9,18 @@ import './LoginScreen.css';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage(''); // Clear previous errors
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, 'defaultPassword');
-      alert("Login successful!");
-      navigate('/practices');
+      await signInWithEmailAndPassword(auth, email, 'defaultPassword');
+      navigate('/practices'); // Redirect to practices page on successful login
     } catch (error) {
-      console.error("Error logging in:", error);
-      alert(error.message);
+      console.error('Error logging in:', error);
+      setErrorMessage('Invalid credentials'); // Display generic error message
     }
   };
 
@@ -36,10 +37,12 @@ const LoginScreen = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className={errorMessage ? 'input-error' : ''}
             />
           </div>
           <button type="submit" className="submit-button">Login</button>
         </form>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
         <p className="signup-link">Don't have an account? <Link to="/signup">Sign Up</Link></p>
       </div>
     </div>
