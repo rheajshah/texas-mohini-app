@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth } from './firebase'; // Update the path as necessary
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -23,6 +23,7 @@ const PracticeList = () => {
   const [addPracticeMode, setAddPracticeMode] = useState(false);
   const [conflicts, setConflicts] = useState({});
   const [users, setUsers] = useState({}); // To store user display names
+  const [deleteMode, setDeleteMode] = useState(false); // State to manage delete confirmation
 
   const getDayOfWeek = (date) => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -217,6 +218,25 @@ const PracticeList = () => {
       console.error("Error adding practice: ", error);
     }
   };
+
+  const handleDeletePractice = async () => {
+    try {
+      if (selectedPractice) {
+        const practiceRef = doc(db, 'practices', selectedPractice.id);
+        await deleteDoc(practiceRef);
+  
+        // Update the practices state to remove the deleted practice
+        setPractices(prevPractices => prevPractices.filter(practice => practice.id !== selectedPractice.id));
+  
+        // Close the confirmation modal and reset selected practice
+        setDeleteMode(false); // Close the delete confirmation modal
+        setSelectedPractice(null); // Reset the selected practice
+      }
+    } catch (error) {
+      console.error("Error deleting practice: ", error);
+    }
+  };
+  
   
   return (
     <div>
@@ -250,16 +270,26 @@ const PracticeList = () => {
   
             <div className="button-group">
               {userRole === 'Captain' && (
-                <button
-                  onClick={() => {
-                    setSelectedPractice(item);
-                    setEditMode(true);
-                    setNewPracticeTime(item.time);
-                    setNewPracticeLocation(item.location);
-                  }}
-                >
-                  Edit Practice
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setSelectedPractice(item);
+                      setEditMode(true);
+                      setNewPracticeTime(item.time);
+                      setNewPracticeLocation(item.location);
+                    }}
+                  >
+                    Edit Practice
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedPractice(item);
+                      setDeleteMode(true);
+                    }}
+                  >
+                    Delete Practice
+                  </button>
+                </>
               )}
   
               <button
@@ -356,8 +386,26 @@ const PracticeList = () => {
           </div>
         </div>
       )}
+  
+      {deleteMode && selectedPractice && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this practice?</p>
+            <button onClick={handleDeletePractice}>Yes, Delete</button>
+            <button
+              onClick={() => {
+                setDeleteMode(false);
+                setSelectedPractice(null);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  );  
+  );
 };
 
 
