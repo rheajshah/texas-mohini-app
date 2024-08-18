@@ -3,7 +3,7 @@ import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, u
 import { auth } from './firebase'; // Update the path as necessary
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format,parseISO } from 'date-fns'; // Updated import
+import { format, parseISO } from 'date-fns'; // Updated import
 import './PracticeList.css'; // Add your CSS file for styling
 
 const db = getFirestore();
@@ -12,6 +12,7 @@ const PracticeList = () => {
   // State variables
   const [practices, setPractices] = useState([]);
   const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [selectedPractice, setSelectedPractice] = useState(null);
   const [conflictTime, setConflictTime] = useState('');
   const [conflictReason, setConflictReason] = useState('');
@@ -103,6 +104,7 @@ const PracticeList = () => {
       try {
         const user = auth.currentUser;
         if (user) {
+          setUserId(user.uid); // Set the userId state
           const userDocRef = doc(db, 'users', user.uid);
           const userSnapshot = await getDoc(userDocRef);
           if (userSnapshot.exists()) {
@@ -116,7 +118,7 @@ const PracticeList = () => {
       } catch (error) {
         console.error("Error fetching user role: ", error);
       }
-    };
+    };    
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -158,6 +160,27 @@ const PracticeList = () => {
       console.error("Error adding conflict: ", error);
     }
   };
+
+  const handleEditConflict = async (conflictId) => {
+    try {
+      const conflictRef = doc(db, 'conflicts', conflictId);
+      await updateDoc(conflictRef, {
+        conflictTime,
+        reason: conflictReason
+      });
+  
+      // Fetch conflicts and users again to ensure data consistency
+      await fetchPracticesAndConflicts();
+  
+      setModalVisible(false);
+      setConflictTime('');
+      setConflictReason('');
+    } catch (error) {
+      console.error("Error updating conflict: ", error);
+    }
+  };
+  
+  
 
   const handleEditPractice = async () => {
     try {
@@ -260,14 +283,33 @@ const PracticeList = () => {
             {conflicts[item.id] && conflicts[item.id].length > 0 && (
               <div className="conflicts">
                 <h4>Conflicts:</h4>
-                {conflicts[item.id].map((conflict, index) => (
-                  <p key={index}>
-                    {users[conflict.dancerId]} - {conflict.conflictTime} - {conflict.reason}
-                  </p>
+                {conflicts[item.id]?.map((conflict) => (
+                  <div
+                    key={conflict.id}
+                    className={`conflict-item ${conflict.dancerId === userId ? 'user-conflict' : ''}`}
+                  >
+                    <p>
+                      {users[conflict.dancerId]} - {conflict.conflictTime} - {conflict.reason}
+                      {conflict.dancerId === userId && (
+                        <button
+                          className="edit-conflict-button"
+                          onClick={() => {
+                            setEditMode(true);
+                            setSelectedPractice(item);
+                            setConflictTime(conflict.conflictTime);
+                            setConflictReason(conflict.reason);
+                            setModalVisible(true);
+                          }}
+                        >
+                          Edit Conflict
+                        </button>
+                      )}
+                    </p>
+                  </div>
                 ))}
               </div>
             )}
-  
+
             <div className="button-group">
               {userRole === 'Captain' && (
                 <>

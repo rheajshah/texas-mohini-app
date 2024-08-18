@@ -171,4 +171,33 @@
     }
 }
   
-  
+.user-conflict {
+  background-color: #891f3260; /* Slightly darker highlight color */
+}
+
+.conflict-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.edit-conflict-button {
+  margin-left: 10px;
+  margin-top: 0px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  background-color: #891F33;
+  color: #EEDDBC;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.edit-conflict-button:hover {
+  background-color: #721A2C;
+}
+
+h4 {
+  margin-bottom: 5px;
+}
