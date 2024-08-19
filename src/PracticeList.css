@@ -1,4 +1,24 @@
 /* PracticeList.css */
+.header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+.logout-button {
+  background-color: #891F33; /* Red background */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #721A2C; /* Darker red on hover */
+}
 
 .practice-list {
     display: flex;

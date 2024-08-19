@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { auth } from './firebase'; // Update the path as necessary
+import { auth } from './firebase'; 
+import { signOut } from 'firebase/auth';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format, parseISO } from 'date-fns'; // Updated import
-import './PracticeList.css'; // Add your CSS file for styling
+import { format, parseISO } from 'date-fns'; 
+import './PracticeList.css';
 
 const db = getFirestore();
 
@@ -288,9 +289,21 @@ const PracticeList = () => {
     }
   };
   
-  
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Redirect to login screen or handle logout state
+      window.location.href = "/"; // Assuming you want to redirect to the login page
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
   return (
     <div>
+      <div className="header">
+        <button onClick={handleLogout} className="logout-button">Logout</button>
+      </div>
       <h2>Practice Schedule</h2> {/* Add the title here */}
       <div className="practice-list">
         {userRole === 'Captain' && (
