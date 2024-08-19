@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 import { auth } from './firebase'; 
 import { signOut } from 'firebase/auth';
 import DatePicker from 'react-datepicker';
@@ -289,15 +290,32 @@ const PracticeList = () => {
     }
   };
   
+  const navigate = useNavigate();
   const handleLogout = async () => {
     try {
       await signOut(auth);
       // Redirect to login screen or handle logout state
-      window.location.href = "/"; // Assuming you want to redirect to the login page
+      navigate("/"); // Use navigate to redirect to the login page
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
+
+  const handleAddPracticeClick = () => {
+    setAddPracticeMode(true);
+    setNewPracticeDate(new Date()); // Reset date picker to today's date
+    setNewPracticeTime(''); // Reset time field
+    setNewPracticeLocation(''); // Reset location field
+  };
+
+  const handleEditPracticeClick = (practice) => {
+    setSelectedPractice(practice);
+    setEditPracticeMode(true);
+    setNewPracticeDate(parseISO(practice.date));  // Set the date picker to the current selected practice's date
+    setNewPracticeTime(practice.time);
+    setNewPracticeLocation(practice.location);
+  };
+  
 
   return (
     <div>
@@ -308,7 +326,7 @@ const PracticeList = () => {
       <div className="practice-list">
         {userRole === 'Captain' && (
           <>
-            <button onClick={() => setAddPracticeMode(true)} className="new-prac-button">
+            <button onClick={handleAddPracticeClick} className="new-prac-button">
               Add New Practice
             </button>
           </>
@@ -343,7 +361,7 @@ const PracticeList = () => {
                               setModalVisible(true);
                             }}
                           >
-                            Edit Conflict
+                            Edit
                           </button>
                           <button
                             className="delete-conflict-button"
@@ -352,7 +370,7 @@ const PracticeList = () => {
                               setDeleteConflictMode(true);
                             }}
                           >
-                            Delete Conflict
+                            Delete
                           </button>
                         </>
                       )}
@@ -366,12 +384,7 @@ const PracticeList = () => {
               {userRole === 'Captain' && (
                 <>
                   <button
-                    onClick={() => {
-                      setSelectedPractice(item);
-                      setEditPracticeMode(true);
-                      setNewPracticeTime(item.time);
-                      setNewPracticeLocation(item.location);
-                    }}
+                    onClick={() => handleEditPracticeClick(item)}
                   >
                     Edit Practice
                   </button>
