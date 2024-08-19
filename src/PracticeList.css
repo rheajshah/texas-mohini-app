@@ -1,8 +1,12 @@
 /* PracticeList.css */
+h4 {
+  margin-bottom: 5px;
+}
+
 .header {
   display: flex;
   justify-content: flex-end;
-  padding: 10px;
+  margin: 20px;
 }
 
 .logout-button {
@@ -200,9 +204,10 @@
   justify-content: space-between;
   align-items: center;
   padding-left: 8px;
+  padding-right: 8px;
 }
 
-.edit-conflict-button {
+.conflict-buttons {
   margin-left: 10px;
   margin-top: 0px;
   padding: 5px 10px;
@@ -214,28 +219,7 @@
   cursor: pointer;
 }
 
-.edit-conflict-button:hover {
-  background-color: #721A2C;
-}
-
-h4 {
-  margin-bottom: 5px;
-}
-
-.delete-conflict-button {
-  margin-left: 10px;
-  margin-top: 0px;
-  padding: 5px 10px;
-  margin-right: 5px;
-  font-size: 0.8rem;
-  background-color: #891F33;
-  color: #EEDDBC;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.delete-conflict-button:hover {
+.conflict-buttons:hover {
   background-color: #721A2C;
 }
 

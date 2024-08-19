@@ -26,6 +26,7 @@ const PracticeList = () => {
   const [newPracticeLocation, setNewPracticeLocation] = useState('');
   const [addPracticeMode, setAddPracticeMode] = useState(false);
   const [conflicts, setConflicts] = useState({});
+  const [conflictApproval, setConflictApproval] = useState({}); // Add this line
   const [users, setUsers] = useState({}); // To store user display names
   const [deletePracticeMode, setDeletePracticeMode] = useState(false); // State to manage delete confirmation
   const [deleteConflictMode, setDeleteConflictMode] = useState(false); // State to manage delete confirmation
@@ -100,10 +101,35 @@ const PracticeList = () => {
       // Update state with practices and conflicts data
       setPractices(practicesData);
       setConflicts(conflictsData);
+
+      // Fetch conflict approval data
+      const conflictIds = conflictsSnapshot.docs.map(doc => doc.id);
+      await fetchConflictApprovalData(conflictIds);
     } catch (error) {
       console.error("Error fetching practices and conflicts: ", error);
     }
   };
+
+  const fetchConflictApprovalData = async (conflictIds) => {
+    try {
+      if (conflictIds.length > 0) {
+        const conflictsRef = collection(db, 'conflicts');
+        const conflictsQuery = query(conflictsRef, where('__name__', 'in', conflictIds));
+        const conflictsSnapshot = await getDocs(conflictsQuery);
+    
+        const conflictApprovalData = conflictsSnapshot.docs.reduce((acc, doc) => {
+          const data = doc.data();
+          acc[doc.id] = data.approved || false; // Set default value to false if not present
+          return acc;
+        }, {});
+    
+        setConflictApproval(conflictApprovalData);
+      }
+    } catch (error) {
+      console.error("Error fetching conflict approval data: ", error);
+    }
+  };
+  
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -191,6 +217,34 @@ const PracticeList = () => {
       }
     } catch (error) {
       console.error("Error updating conflict:", error);
+    }
+  };
+  
+  const handleApproveConflict = async (conflictId) => {
+    try {
+      const conflictRef = doc(db, 'conflicts', conflictId);
+      await updateDoc(conflictRef, {
+        approved: true
+      });
+    
+      // Update the state to reflect the changes
+      setConflictApproval(prev => ({ ...prev, [conflictId]: true }));
+    } catch (error) {
+      console.error("Error approving conflict:", error);
+    }
+  };
+  
+  const handleRejectConflict = async (conflictId) => {
+    try {
+      const conflictRef = doc(db, 'conflicts', conflictId);
+      await updateDoc(conflictRef, {
+        approved: false
+      });
+    
+      // Update the state to reflect the changes
+      setConflictApproval(prev => ({ ...prev, [conflictId]: false }));
+    } catch (error) {
+      console.error("Error rejecting conflict:", error);
     }
   };
   
@@ -364,7 +418,7 @@ const PracticeList = () => {
                       {conflict.dancerId === userId && (
                         <>
                           <button
-                            className="edit-conflict-button"
+                            className="conflict-buttons"
                             onClick={() => {
                               setEditConflictMode(true);
                               setSelectedPractice(item);
@@ -377,7 +431,7 @@ const PracticeList = () => {
                             Edit
                           </button>
                           <button
-                            className="delete-conflict-button"
+                            className="conflict-buttons"
                             onClick={() => {
                               setSelectedConflictId(conflict.id);
                               setDeleteConflictMode(true);
@@ -387,6 +441,17 @@ const PracticeList = () => {
                           </button>
                         </>
                       )}
+                      {/* Add approval buttons here */}
+                      {userRole === 'Captain' && !conflictApproval[conflict.id] && (
+                        <button className="conflict-buttons" onClick={() => handleApproveConflict(conflict.id)}>Approve</button>
+                      )}
+                      {userRole === 'Captain' && conflictApproval[conflict.id] && (
+                        <button className="conflict-buttons" onClick={() => handleRejectConflict(conflict.id)}>Reject</button>
+                      )}
+                      {/* {userRole === 'Captain' && conflictApproval[conflict.id] && <span>Approved</span>}
+                      {userRole === 'Captain' && !conflictApproval[conflict.id] && <span>Pending Approval</span>} */}
+                      {(userRole === 'Captain' || conflict.dancerId === userId) && conflictApproval[conflict.id] && <span> ✅</span>}
+                      {/* {(userRole === 'Captain' || conflict.dancerId === userId) && !conflictApproval[conflict.id] && <span></span>} */}
                     </p>
                   </div>
                 ))}
