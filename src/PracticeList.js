@@ -70,9 +70,10 @@ const PracticeList = () => {
         if (!acc[data.practiceId]) {
           acc[data.practiceId] = [];
         }
-        acc[data.practiceId].push(data);
+        acc[data.practiceId].push({ id: doc.id, ...data }); // Include doc.id
         return acc;
       }, {});
+      
   
       // Fetch user display names
       const userIds = Array.from(new Set(conflictsSnapshot.docs.map(doc => doc.data().dancerId)));
@@ -165,8 +166,13 @@ const PracticeList = () => {
 
   const handleEditConflict = async () => {
     try {
-      console.log("Editing conflict with ID:", selectedConflictId);
       if (selectedConflictId) {
+        console.log("Selected Conflict ID:", selectedConflictId); // Log the ID
+        if (typeof selectedConflictId !== 'string') {
+          console.error("Invalid conflict ID:", selectedConflictId);
+          return;
+        }
+  
         const conflictRef = doc(db, 'conflicts', selectedConflictId);
         await updateDoc(conflictRef, {
           conflictTime,
@@ -179,12 +185,13 @@ const PracticeList = () => {
         setModalVisible(false);
         setConflictTime('');
         setConflictReason('');
-        setSelectedConflictId(null); // Clear the selected conflict ID after editing
+        setSelectedConflictId(null);
       }
     } catch (error) {
       console.error("Error updating conflict:", error);
     }
   };
+  
   
   
   
@@ -304,7 +311,8 @@ const PracticeList = () => {
                           onClick={() => {
                             setEditConflictMode(true);
                             setSelectedPractice(item);
-                            setSelectedConflictId(conflict.id); // Set the ID of the conflict being edited
+                            console.log(conflict);
+                            setSelectedConflictId(conflict.id); // Make sure you're setting the ID correctly
                             setConflictTime(conflict.conflictTime);
                             setConflictReason(conflict.reason);
                             setModalVisible(true);
@@ -324,6 +332,7 @@ const PracticeList = () => {
                 <>
                   <button
                     onClick={() => {
+                      console.log(item);
                       setSelectedPractice(item);
                       setEditPracticeMode(true);
                       setNewPracticeTime(item.time);
