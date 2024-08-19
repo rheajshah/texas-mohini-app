@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc, writeBatch} from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { auth } from './firebase'; 
 import { signOut } from 'firebase/auth';
@@ -275,6 +275,18 @@ const PracticeList = () => {
   const handleDeletePractice = async () => {
     try {
       if (selectedPractice) {
+        const conflictsRef = collection(db, 'conflicts');
+        const conflictsQuery = query(conflictsRef, where('practiceId', '==', selectedPractice.id));
+        const conflictsSnapshot = await getDocs(conflictsQuery);
+  
+        // Delete all conflicts associated with the practice
+        const batch = writeBatch(db); 
+        conflictsSnapshot.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+  
+        // Now delete the practice itself
         const practiceRef = doc(db, 'practices', selectedPractice.id);
         await deleteDoc(practiceRef);
   
@@ -286,9 +298,10 @@ const PracticeList = () => {
         setSelectedPractice(null); // Reset the selected practice
       }
     } catch (error) {
-      console.error("Error deleting practice: ", error);
+      console.error("Error deleting practice and its conflicts: ", error);
     }
   };
+  
   
   const navigate = useNavigate();
   const handleLogout = async () => {
