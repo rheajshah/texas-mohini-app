@@ -201,3 +201,21 @@
 h4 {
   margin-bottom: 5px;
 }
+
+.delete-conflict-button {
+  margin-left: 10px;
+  margin-top: 0px;
+  padding: 5px 10px;
+  margin-right: 5px;
+  font-size: 0.8rem;
+  background-color: #891F33;
+  color: #EEDDBC;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.delete-conflict-button:hover {
+  background-color: #721A2C;
+}
+

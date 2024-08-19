@@ -25,7 +25,8 @@ const PracticeList = () => {
   const [addPracticeMode, setAddPracticeMode] = useState(false);
   const [conflicts, setConflicts] = useState({});
   const [users, setUsers] = useState({}); // To store user display names
-  const [deleteMode, setDeleteMode] = useState(false); // State to manage delete confirmation
+  const [deletePracticeMode, setDeletePracticeMode] = useState(false); // State to manage delete confirmation
+  const [deleteConflictMode, setDeleteConflictMode] = useState(false); // State to manage delete confirmation
   const [selectedConflictId, setSelectedConflictId] = useState(null);
 
   const getDayOfWeek = (date) => {
@@ -167,7 +168,6 @@ const PracticeList = () => {
   const handleEditConflict = async () => {
     try {
       if (selectedConflictId) {
-        console.log("Selected Conflict ID:", selectedConflictId); // Log the ID
         if (typeof selectedConflictId !== 'string') {
           console.error("Invalid conflict ID:", selectedConflictId);
           return;
@@ -192,11 +192,23 @@ const PracticeList = () => {
     }
   };
   
-  
-  
-  
-  
-  
+  const handleDeleteConflict = async () => {
+    try {
+      if (selectedConflictId) {
+        const conflictRef = doc(db, 'conflicts', selectedConflictId);
+        await deleteDoc(conflictRef);
+    
+        // Fetch conflicts and users again to ensure data consistency
+        await fetchPracticesAndConflicts();
+    
+        setModalVisible(false);
+        setEditConflictMode(false);
+        setSelectedConflictId(null);
+      }
+    } catch (error) {
+      console.error("Error deleting conflict: ", error);
+    }
+  };
 
   const handleEditPractice = async () => {
     try {
@@ -268,7 +280,7 @@ const PracticeList = () => {
         setPractices(prevPractices => prevPractices.filter(practice => practice.id !== selectedPractice.id));
   
         // Close the confirmation modal and reset selected practice
-        setDeleteMode(false); // Close the delete confirmation modal
+        setDeletePracticeMode(false); // Close the delete confirmation modal
         setSelectedPractice(null); // Reset the selected practice
       }
     } catch (error) {
@@ -300,26 +312,36 @@ const PracticeList = () => {
                 <h4>Conflicts:</h4>
                 {conflicts[item.id]?.map((conflict) => (
                   <div
-                    key={conflict.id}
-                    className={`conflict-item ${conflict.dancerId === userId ? 'user-conflict' : ''}`}
+                  key={conflict.id}
+                  className={`conflict-item ${conflict.dancerId === userId ? 'user-conflict' : ''}`}
                   >
                     <p>
                       {users[conflict.dancerId]} - {conflict.conflictTime} - {conflict.reason}
                       {conflict.dancerId === userId && (
-                        <button
-                          className="edit-conflict-button"
-                          onClick={() => {
-                            setEditConflictMode(true);
-                            setSelectedPractice(item);
-                            console.log(conflict);
-                            setSelectedConflictId(conflict.id); // Make sure you're setting the ID correctly
-                            setConflictTime(conflict.conflictTime);
-                            setConflictReason(conflict.reason);
-                            setModalVisible(true);
-                          }}
-                        >
-                          Edit Conflict
-                        </button>
+                        <>
+                          <button
+                            className="edit-conflict-button"
+                            onClick={() => {
+                              setEditConflictMode(true);
+                              setSelectedPractice(item);
+                              setSelectedConflictId(conflict.id);
+                              setConflictTime(conflict.conflictTime);
+                              setConflictReason(conflict.reason);
+                              setModalVisible(true);
+                            }}
+                          >
+                            Edit Conflict
+                          </button>
+                          <button
+                            className="delete-conflict-button"
+                            onClick={() => {
+                              setSelectedConflictId(conflict.id);
+                              setDeleteConflictMode(true);
+                            }}
+                          >
+                            Delete Conflict
+                          </button>
+                        </>
                       )}
                     </p>
                   </div>
@@ -332,7 +354,6 @@ const PracticeList = () => {
                 <>
                   <button
                     onClick={() => {
-                      console.log(item);
                       setSelectedPractice(item);
                       setEditPracticeMode(true);
                       setNewPracticeTime(item.time);
@@ -344,7 +365,7 @@ const PracticeList = () => {
                   <button
                     onClick={() => {
                       setSelectedPractice(item);
-                      setDeleteMode(true);
+                      setDeletePracticeMode(true);
                     }}
                   >
                     Delete Practice
@@ -435,36 +456,6 @@ const PracticeList = () => {
           </div>
         </div>
       )}
-  
-      {editConflictMode && selectedPractice && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Edit Conflict</h3>
-            <input
-              type="text"
-              placeholder="Conflict Time (e.g., 8-9pm)"
-              value={conflictTime}
-              onChange={(e) => setConflictTime(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Reason (e.g., midterm)"
-              value={conflictReason}
-              onChange={(e) => setConflictReason(e.target.value)}
-            />
-            <button onClick={handleEditConflict}>Submit</button>
-            <button
-              onClick={() => {
-                setEditConflictMode(false);
-                setSelectedPractice(null);
-                setSelectedConflictId(null);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       {editPracticeMode && selectedPractice && (
         <div className="modal">
@@ -498,9 +489,8 @@ const PracticeList = () => {
           </div>
         </div>
       )}
-
   
-      {deleteMode && selectedPractice && (
+      {deletePracticeMode && selectedPractice && (
         <div className="modal">
           <div className="modal-content">
             <h3>Confirm Delete</h3>
@@ -508,8 +498,58 @@ const PracticeList = () => {
             <button onClick={handleDeletePractice}>Yes, Delete</button>
             <button
               onClick={() => {
-                setDeleteMode(false);
+                setDeletePracticeMode(false);
                 setSelectedPractice(null);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+       {/* Edit Conflict Modal */}
+      {editConflictMode && selectedPractice && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Edit Conflict</h3>
+            <input
+              type="text"
+              placeholder="Conflict Time (e.g., 8-9pm)"
+              value={conflictTime}
+              onChange={(e) => setConflictTime(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Reason (e.g., midterm)"
+              value={conflictReason}
+              onChange={(e) => setConflictReason(e.target.value)}
+            />
+            <button onClick={handleEditConflict}>Submit</button>
+            <button
+              onClick={() => {
+                setEditConflictMode(false);
+                setSelectedPractice(null);
+                setSelectedConflictId(null);
+                setModalVisible(false); // Ensure modals are closed
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {deleteConflictMode && selectedConflictId && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Delete Conflict</h3>
+            <p>Are you sure you want to delete this conflict?</p>
+            <button onClick={handleDeleteConflict}>Yes, Delete</button>
+            <button
+              onClick={() => {
+                setDeleteConflictMode(false);
+                setSelectedConflictId(null);
               }}
             >
               Cancel
@@ -520,7 +560,5 @@ const PracticeList = () => {
     </div>
   );
 };
-
-
 
 export default PracticeList;
