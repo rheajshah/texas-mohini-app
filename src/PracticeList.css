@@ -10,18 +10,20 @@ h4 {
 }
 
 .logout-button {
-  background-color: #891F33; /* Red background */
-  color: white;
+  color: #891F33; /* Red background */
+  background-color: #EEDDBC !important;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: bold;
+  text-decoration: underline;
   transition: background-color 0.3s ease;
 }
 
 .logout-button:hover {
-  background-color: #721A2C; /* Darker red on hover */
+  color: #721A2C; /* Darker red on hover */
 }
 
 .practice-list {
