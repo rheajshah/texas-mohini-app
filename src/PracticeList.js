@@ -204,7 +204,8 @@ const PracticeList = () => {
         const conflictRef = doc(db, 'conflicts', selectedConflictId);
         await updateDoc(conflictRef, {
           conflictTime,
-          reason: conflictReason
+          reason: conflictReason,
+          approved: false
         });
   
         await fetchPracticesAndConflicts();
@@ -509,29 +510,7 @@ const PracticeList = () => {
             </div>
           </div>
         )}
-
       </div>
-  
-      {selectedPractice && modalVisible && (
-        <div className="modal">
-          <div className="modal-content">
-            <input
-              type="text"
-              placeholder="Conflict Time (e.g., 8-9pm)"
-              value={conflictTime}
-              onChange={(e) => setConflictTime(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Reason (e.g., midterm)"
-              value={conflictReason}
-              onChange={(e) => setConflictReason(e.target.value)}
-            />
-            <button onClick={handleAddConflict}>Submit</button>
-            <button onClick={() => setModalVisible(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
   
       {addPracticeMode && (
         <div className="modal">
